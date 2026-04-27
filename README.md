@@ -1,4 +1,4 @@
-# ship-kit
+# appstore-prep
 
 A Claude Code plugin that captures the gnarly pre-submission steps of shipping iOS / macOS / Android apps to App Store Connect and Google Play. Distills hard-won failure modes (signing, packaging, asset hygiene) into skills that Claude can invoke automatically.
 
@@ -6,9 +6,9 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 
 [**Blitz**](https://blitz.dev) is the right tool for *App Store Connect operations* — submit for review, manage versions, upload screenshots, attach IAPs, control TestFlight. ~35 MCP tools, native macOS GUI, polished.
 
-**ship-kit complements Blitz**, covering the part *before* the .pkg / .ipa is ready for upload:
+**appstore-prep complements Blitz**, covering the part *before* the .pkg / .ipa is ready for upload:
 
-| | ship-kit | Blitz |
+| | appstore-prep | Blitz |
 |---|---|---|
 | Mac App Store .pkg signing (Apple Distribution + 3rd Party Mac Developer Installer) | ✅ | ❌ |
 | SwiftPM nested-bundle 409 fix | ✅ | ❌ |
@@ -19,7 +19,7 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 | Cross-platform analytics SDK integration | (planned) | ❌ |
 | ASC operations (versions, IAPs, TestFlight, screenshots upload) | ❌ | ✅ |
 
-Use ship-kit to produce a clean artifact, hand off to Blitz to submit it.
+Use appstore-prep to produce a clean artifact, hand off to Blitz to submit it.
 
 ## Skills
 
@@ -41,14 +41,14 @@ This is a [Claude Code plugin](https://docs.claude.com/en/docs/claude-code/plugi
 
 ```sh
 # in your Claude Code config
-/plugin add /path/to/ship-kit
+/plugin add /path/to/appstore-prep
 ```
 
 Or clone alongside your project and reference via your `.claude/settings.json`:
 
 ```json
 {
-  "plugins": ["/abs/path/to/ship-kit"]
+  "plugins": ["/abs/path/to/appstore-prep"]
 }
 ```
 
