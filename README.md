@@ -10,6 +10,7 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 
 | | appstore-prep | Blitz |
 |---|---|---|
+| iOS archive + upload, with train-closed and duplicate-build detection | ✅ | ❌ |
 | Mac App Store .pkg signing (Apple Distribution + 3rd Party Mac Developer Installer) | ✅ | ❌ |
 | SwiftPM nested-bundle 409 fix | ✅ | ❌ |
 | AppIcon white-border / full-bleed validation | ✅ | ❌ |
@@ -22,6 +23,12 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 Use appstore-prep to produce a clean artifact, hand off to Blitz to submit it.
 
 ## Skills
+
+### `release-ios`
+
+Archive, export, and upload an iOS app to App Store Connect with one command. Generates a correct manual-signing `ExportOptions.plist`, optionally bumps `CFBundleVersion` in `project.yml` or `Info.plist` before archiving, and post-mortems the upload — if it fails with "train version closed for new build submissions" or "build N already exists", the script tells you exactly which version field to bump.
+
+Triggers when the user wants to ship/archive/export/upload to App Store Connect or TestFlight, or hits errors about closed trains, duplicate build numbers, missing profiles, or `errSecInternalComponent`.
 
 ### `release-mac`
 
@@ -77,9 +84,10 @@ Requires macOS (uses `sips`, `swift`, `codesign`, `productbuild`, `PlistBuddy`).
 
 ## Roadmap
 
-- `release-ios` — wrap the iOS archive/export/upload flow including OAuth-as-SFSafariViewController checks
+- `oauth-review-check` — scan Swift code for `UIApplication.shared.open(authURL)` patterns and recommend `SFSafariViewController` (Apple Guideline 4 rejection prevention)
+- `privacy-manifest` — verify `PrivacyInfo.xcprivacy` covers the SDKs in use; auto-generate from a known-SDK list
+- `aso-audit` — keyword length / subtitle / screenshot device-size completeness
 - `release-android` — Play Console keystore setup, AAB build, fastlane metadata template
-- `aso-audit` — keyword length checks, subtitle suggestions, screenshot device-size completeness
 - `integrate-analytics` — wire AppsFlyer + Meta SDK into iOS/Android with the right ATT + SKAdNetwork plumbing
 
 Not in scope: anything Blitz already does well (ASC operations, TestFlight, IAPs).
