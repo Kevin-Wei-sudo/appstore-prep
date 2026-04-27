@@ -10,6 +10,7 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 
 | | appstore-prep | Blitz |
 |---|---|---|
+| OAuth-flow review-rejection scanner (Guideline 4.5/4.8) | ✅ | ❌ |
 | iOS archive + upload, with train-closed and duplicate-build detection | ✅ | ❌ |
 | Mac App Store .pkg signing (Apple Distribution + 3rd Party Mac Developer Installer) | ✅ | ❌ |
 | SwiftPM nested-bundle 409 fix | ✅ | ❌ |
@@ -23,6 +24,12 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 Use appstore-prep to produce a clean artifact, hand off to Blitz to submit it.
 
 ## Skills
+
+### `oauth-review-check`
+
+Static-scan an iOS / macOS Swift codebase for OAuth flows that App Store review will reject under Guideline 4.5 / 4.8 — `UIApplication.shared.open(authURL)` (kicks to Safari), `WKWebView` for OAuth (phishing risk), `NSWorkspace.shared.open` for auth (macOS). Recommends `ASWebAuthenticationSession` (OAuth with callback) or `SFSafariViewController` (view-only auth pages). Heuristic scoring: HIGH near a real OAuth URL, MED near auth-looking variable names, suppressible with `// oauth-review-check: ok`.
+
+Triggers when the user is preparing for App Store submission, hit a Guideline 4 rejection, or asks if their login flow is App Store compliant.
 
 ### `release-ios`
 
@@ -84,9 +91,7 @@ Requires macOS (uses `sips`, `swift`, `codesign`, `productbuild`, `PlistBuddy`).
 
 ## Roadmap
 
-- `oauth-review-check` — scan Swift code for `UIApplication.shared.open(authURL)` patterns and recommend `SFSafariViewController` (Apple Guideline 4 rejection prevention)
 - `privacy-manifest` — verify `PrivacyInfo.xcprivacy` covers the SDKs in use; auto-generate from a known-SDK list
-- `aso-audit` — keyword length / subtitle / screenshot device-size completeness
 - `release-android` — Play Console keystore setup, AAB build, fastlane metadata template
 - `integrate-analytics` — wire AppsFlyer + Meta SDK into iOS/Android with the right ATT + SKAdNetwork plumbing
 
