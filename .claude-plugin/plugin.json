@@ -1,0 +1,19 @@
+{
+  "name": "ship-kit",
+  "version": "0.1.0",
+  "description": "Cross-platform release playbook for shipping iOS / macOS / Android apps. Captures the gnarly pre-submission steps (signing, packaging, asset hygiene, ASO) that GUI tools like Blitz don't cover.",
+  "author": {
+    "name": "ship-kit"
+  },
+  "homepage": "",
+  "license": "Apache-2.0",
+  "keywords": [
+    "app-store",
+    "mac-app-store",
+    "ios",
+    "macos",
+    "release",
+    "code-signing",
+    "appstoreconnect"
+  ]
+}

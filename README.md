@@ -1,0 +1,89 @@
+# ship-kit
+
+A Claude Code plugin that captures the gnarly pre-submission steps of shipping iOS / macOS / Android apps to App Store Connect and Google Play. Distills hard-won failure modes (signing, packaging, asset hygiene) into skills that Claude can invoke automatically.
+
+## Positioning
+
+[**Blitz**](https://blitz.dev) is the right tool for *App Store Connect operations* — submit for review, manage versions, upload screenshots, attach IAPs, control TestFlight. ~35 MCP tools, native macOS GUI, polished.
+
+**ship-kit complements Blitz**, covering the part *before* the .pkg / .ipa is ready for upload:
+
+| | ship-kit | Blitz |
+|---|---|---|
+| Mac App Store .pkg signing (Apple Distribution + 3rd Party Mac Developer Installer) | ✅ | ❌ |
+| SwiftPM nested-bundle 409 fix | ✅ | ❌ |
+| AppIcon white-border / full-bleed validation | ✅ | ❌ |
+| AccentColor.colorset 90546 fix | ✅ | ❌ |
+| Android Play Store keystore + AAB packaging | (planned) | ❌ |
+| ASO (keywords, subtitle, screenshots) | (planned) | ❌ |
+| Cross-platform analytics SDK integration | (planned) | ❌ |
+| ASC operations (versions, IAPs, TestFlight, screenshots upload) | ❌ | ✅ |
+
+Use ship-kit to produce a clean artifact, hand off to Blitz to submit it.
+
+## Skills
+
+### `release-mac`
+
+Package and sign a macOS Swift / SwiftPM app for the Mac App Store. Handles the whole `.pkg` flow including the SwiftPM nested-bundle fix, the AccentColor catalog hack, and the Apple Distribution → 3rd Party Mac Developer Installer signing distinction.
+
+Triggers when the user is about to ship, or hits errors 409 / 90236 / 90546 / signing identity issues.
+
+### `icon-check`
+
+Validate an `AppIcon.appiconset` directory before submission. Catches the white-border bug (icon designed with built-in rounded corners — iOS applies its own squircle mask on top, leaving white pixels at the corners), missing required sizes, alpha on the 1024 marketing icon, and pixel-dimension mismatches.
+
+Triggers when the user is about to upload, sees a halo on the home screen icon, or hits error 90236.
+
+## Install
+
+This is a [Claude Code plugin](https://docs.claude.com/en/docs/claude-code/plugins). The skills auto-load when Claude Code starts a session in a project where the plugin is enabled.
+
+```sh
+# in your Claude Code config
+/plugin add /path/to/ship-kit
+```
+
+Or clone alongside your project and reference via your `.claude/settings.json`:
+
+```json
+{
+  "plugins": ["/abs/path/to/ship-kit"]
+}
+```
+
+## Run a script directly
+
+You don't need Claude Code to use the scripts — they're self-contained:
+
+```sh
+# Validate an icon set
+./skills/icon-check/scripts/check-icons.sh ios/MyApp/Assets.xcassets/AppIcon.appiconset
+
+# Preflight signing setup
+./skills/release-mac/scripts/preflight.sh
+
+# Sign and package a macOS .app
+./skills/release-mac/scripts/sign-and-package.sh \
+  --app /path/to/MyApp.app \
+  --entitlements /path/to/MyApp.entitlements \
+  --profile ~/Library/MobileDevice/Provisioning\ Profiles/MyApp_Mac_App_Store.provisionprofile \
+  --distribution-identity "Apple Distribution: Name (TEAMID)" \
+  --installer-identity "3rd Party Mac Developer Installer: Name (TEAMID)" \
+  --output /path/to/MyApp.pkg
+```
+
+Requires macOS (uses `sips`, `swift`, `codesign`, `productbuild`, `PlistBuddy`). Xcode Command Line Tools is sufficient — full Xcode is not required.
+
+## Roadmap
+
+- `release-ios` — wrap the iOS archive/export/upload flow including OAuth-as-SFSafariViewController checks
+- `release-android` — Play Console keystore setup, AAB build, fastlane metadata template
+- `aso-audit` — keyword length checks, subtitle suggestions, screenshot device-size completeness
+- `integrate-analytics` — wire AppsFlyer + Meta SDK into iOS/Android with the right ATT + SKAdNetwork plumbing
+
+Not in scope: anything Blitz already does well (ASC operations, TestFlight, IAPs).
+
+## License
+
+Apache-2.0
