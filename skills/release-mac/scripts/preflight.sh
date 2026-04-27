@@ -17,10 +17,17 @@ yellow() { printf '\033[33m%s\033[0m\n' "$*"; }
 
 fail=0
 
-echo "==> Checking signing identities (security find-identity)"
-identities="$(security find-identity -v -p codesigning 2>/dev/null || true)"
-if grep -q "Apple Distribution:" <<<"$identities"; then
-    green "  ✓ Apple Distribution identity present"
+echo "==> Checking signing identities"
+# The Apple Distribution cert is a code-signing identity, the 3rd Party Mac
+# Developer Installer is an installer identity. They appear in different
+# `security find-identity` outputs:
+#   -p codesigning  → code-signing certs only (Apple Distribution shows up)
+#   -p basic        → all identities including installer certs
+codesigning="$(security find-identity -v -p codesigning 2>/dev/null || true)"
+basic="$(security find-identity -v 2>/dev/null || true)"
+
+if grep -q "Apple Distribution:" <<<"$codesigning"; then
+    green "  ✓ Apple Distribution identity present (code-signing)"
 else
     red "  ✗ no 'Apple Distribution' identity found"
     red "    download an Apple Distribution cert from developer.apple.com → Certificates,"
@@ -29,8 +36,8 @@ else
     fail=1
 fi
 
-if grep -q "3rd Party Mac Developer Installer:" <<<"$identities"; then
-    green "  ✓ 3rd Party Mac Developer Installer identity present"
+if grep -q "3rd Party Mac Developer Installer:" <<<"$basic"; then
+    green "  ✓ 3rd Party Mac Developer Installer identity present (installer)"
 else
     red "  ✗ no '3rd Party Mac Developer Installer' identity found"
     red "    this is a SEPARATE certificate from Apple Distribution. Create one in"
@@ -48,11 +55,17 @@ if [[ ! -d "$profile_dir" ]]; then
 else
     found_mas=0
     while IFS= read -r p; do
-        # Mac App Store profiles have ProvisionsAllDevices=false AND a single team key,
-        # but the simplest disambiguator is the entitlement: beta-reports-active=YES means MAS.
+        # A Mac App Store profile has Platform=OSX and no ProvisionedDevices.
+        # (Developer ID Mac apps don't use provisioning profiles at all, so
+        # any OSX profile in this directory without ProvisionedDevices is MAS.)
         plist=$(security cms -D -i "$p" 2>/dev/null || true)
-        if grep -q "<key>beta-reports-active</key>" <<<"$plist"; then
-            name=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<<"$plist" 2>/dev/null || basename "$p")
+        is_osx=0
+        sed -n '/<key>Platform<\/key>/,/<\/array>/p' <<<"$plist" | grep -q '<string>OSX</string>' && is_osx=1
+        has_devices=0
+        grep -q '<key>ProvisionedDevices</key>' <<<"$plist" && has_devices=1
+        if (( is_osx && ! has_devices )); then
+            name=$(grep -A1 '<key>Name</key>' <<<"$plist" | tail -1 | sed -E 's,.*<string>(.*)</string>.*,\1,')
+            [[ -z "$name" ]] && name="$(basename "$p")"
             green "  ✓ $name ($(basename "$p"))"
             found_mas=1
         fi
