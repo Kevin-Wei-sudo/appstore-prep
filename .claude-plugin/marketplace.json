@@ -1,0 +1,17 @@
+{
+  "name": "kevin-wei-sudo",
+  "owner": {
+    "name": "Kevin-Wei-sudo",
+    "url": "https://github.com/Kevin-Wei-sudo"
+  },
+  "plugins": [
+    {
+      "name": "appstore-prep",
+      "source": {
+        "source": "github",
+        "repo": "Kevin-Wei-sudo/appstore-prep"
+      },
+      "description": "Pre-submission playbook for shipping iOS / macOS apps to App Store Connect. 5 skills covering signing, packaging, icon hygiene, ASO audit, and OAuth review-rejection prevention. Complements Blitz (which handles ASC operations) by covering the gnarly steps before the .pkg / .ipa is ready for upload."
+    }
+  ]
+}

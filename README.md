@@ -51,18 +51,28 @@ Triggers when the user is about to upload, sees a halo on the home screen icon, 
 
 ## Install
 
-This is a [Claude Code plugin](https://docs.claude.com/en/docs/claude-code/plugins). The skills auto-load when Claude Code starts a session in a project where the plugin is enabled.
+This is a [Claude Code plugin](https://docs.claude.com/en/docs/claude-code/plugins). Run inside Claude Code:
 
-```sh
-# in your Claude Code config
-/plugin add /path/to/appstore-prep
+```
+/plugin marketplace add Kevin-Wei-sudo/appstore-prep
+/plugin install appstore-prep@kevin-wei-sudo
 ```
 
-Or clone alongside your project and reference via your `.claude/settings.json`:
+Once installed, the skills auto-load every session — Claude invokes `release-ios`, `release-mac`, `icon-check`, `aso-audit`, or `oauth-review-check` automatically when the conversation matches their triggers (e.g. "I want to ship to App Store", "is my OAuth flow compliant", "validate my AppIcon").
+
+### Local clone install
+
+If you want to hack on the plugin while using it:
+
+```sh
+git clone https://github.com/Kevin-Wei-sudo/appstore-prep ~/dev/appstore-prep
+```
+
+Then in `.claude/settings.json`:
 
 ```json
 {
-  "plugins": ["/abs/path/to/appstore-prep"]
+  "plugins": ["~/dev/appstore-prep"]
 }
 ```
 
