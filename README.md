@@ -11,6 +11,7 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 | | appstore-prep | Blitz |
 |---|---|---|
 | OAuth-flow review-rejection scanner (Guideline 4.5/4.8) | ✅ | ❌ |
+| `PrivacyInfo.xcprivacy` audit + Required Reason API detection (ITMS-91053) | ✅ | ❌ |
 | iOS archive + upload, with train-closed and duplicate-build detection | ✅ | ❌ |
 | Mac App Store .pkg signing (Apple Distribution + 3rd Party Mac Developer Installer) | ✅ | ❌ |
 | SwiftPM nested-bundle 409 fix | ✅ | ❌ |
@@ -24,6 +25,12 @@ A Claude Code plugin that captures the gnarly pre-submission steps of shipping i
 Use appstore-prep to produce a clean artifact, hand off to Blitz to submit it.
 
 ## Skills
+
+### `privacy-manifest`
+
+Audit and generate `PrivacyInfo.xcprivacy`. Catches the two ITMS-91053 enforcement issues that block new App Store submissions in 2026: (1) Required Reason APIs used without a declared reason — `UserDefaults`, `systemUptime`, file timestamps, `volumeAvailableCapacity`, `UITextInputMode.activeInputModes`; (2) flagged third-party SDKs (AppsFlyer, FBSDKCoreKit/Meta, Firebase, Google, OneSignal, etc) embedded without their own privacy manifest. Generator emits a valid starter manifest from a code scan.
+
+Triggers when the user is preparing App Store submission, hits ITMS-91053, or integrates a flagged SDK.
 
 ### `oauth-review-check`
 
@@ -101,7 +108,6 @@ Requires macOS (uses `sips`, `swift`, `codesign`, `productbuild`, `PlistBuddy`).
 
 ## Roadmap
 
-- `privacy-manifest` — verify `PrivacyInfo.xcprivacy` covers the SDKs in use; auto-generate from a known-SDK list
 - `release-android` — Play Console keystore setup, AAB build, fastlane metadata template
 - `integrate-analytics` — wire AppsFlyer + Meta SDK into iOS/Android with the right ATT + SKAdNetwork plumbing
 
