@@ -264,8 +264,10 @@ if (( found_any )); then
     yellow "  ! flagged SDK(s) detected — each MUST ship its own PrivacyInfo.xcprivacy:"
     printf "$detected_sdks" | sort -u | while IFS= read -r s; do
         [[ -z "$s" ]] && continue
-        # Verify the SDK ships a manifest if installed via Pods
-        sdk_manifest=$(find "$DIR" -path "*/Pods/$s/*PrivacyInfo.xcprivacy" 2>/dev/null | head -1)
+        # Verify the SDK ships a manifest if installed via Pods.
+        # Match `Pods/<sdk>*/...PrivacyInfo.xcprivacy` because pods often
+        # have a suffix (AppsFlyerFramework, FirebaseCoreInternal, etc.).
+        sdk_manifest=$(find "$DIR" -path "*/Pods/${s}*/*PrivacyInfo.xcprivacy" 2>/dev/null | head -1)
         if [[ -n "$sdk_manifest" ]]; then
             green "    ✓ $s — has its own manifest at ${sdk_manifest#$DIR/}"
         else
